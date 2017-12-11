@@ -21,10 +21,16 @@ def find_BB_and_depth(img_rgb, pixel_depths, drawContours = False):
         if w > 15 and h > 15 and w < 600 and h < 400:
             output[i, :] = x * 2, y * 2, w * 2, h * 2, depth
 
+<<<<<<< Updated upstream
     if drawContours :
         cv2.drawContours(img, contours, -1, (255, 255, 0), 1)
         cv2.imshow("contours", img)
         cv2.waitKey(0)
+=======
+    cv2.drawContours(img, contours, -1, (255, 255, 0), 1)
+    cv2.imshow("contours", img)
+    cv2.waitKey(0)
+>>>>>>> Stashed changes
     cv2.destroyAllWindows()
 
     return output
