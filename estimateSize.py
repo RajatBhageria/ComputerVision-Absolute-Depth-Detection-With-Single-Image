@@ -1,44 +1,105 @@
 import numpy as np
-import find_BB_and_depth
-import load_mat_to_python
-import linreg
+# import find_BB_and_depth
+# import load_mat_to_python
+import linreg_closedform as LinearRegression
+from PIL import Image
+import sys
 
-#part 0: get the depths
+# Part 0: Loading the data with depth from matlab to python
 
-#convert the matlab file to python
-#load_mat_to_python()
+# convert the matlab file to python
+# load_mat_to_python()
 
-#load all the data
+# DONE
+
+# Part 1: Loading image and associated depth data into python
+
+# load all the data
 depths = np.load('nyu_dataset_depths.npy')
 images = np.load('nyu_dataset_images.npy')
-labels = np.load('nyu_dataset_labels.npy')
-names = np.load('nyu_dataset_names.npy')
-scenes = np.load('nyu_dataset_scenes.npy')
+# labels = np.load('nyu_dataset_labels.npy')
+# names = np.load('nyu_dataset_names.npy')
+# scenes = np.load('nyu_dataset_scenes.npy')
 
-#get the 200 images we want to train on from images
-imgs = [1,2,4,6,16] #add
+# Part 2: Import labels n by 4 (img #, bb#, lab_h, lab_w)
 
-#get the bounding boxes for the images we want to train on
-allBBoxes = []
-for i in range (0,len(imgs)):
-    imgi = images[i,:,:,:]
-    #bbox size [k,5] where n is image number, k is num of objects in each image
-    #last dimension has x, y, height, width, depth of each bbox in image i
-    bbox = find_BB_and_depth(imgi)
-    #add to the allBBoxes matrix
-    np.cat((allBBoxes,bbox),axis=3)
+labels = np.loadtxt('data/ImageLabels.dat', delimiter=',')
+n, d = imageLabels.shape
 
-#get the labeled height and widths of k objects in n images
-#size = n x k x 2 where last dimension is height and width in meters
-labels = [];
+# array to hold (img#, bb#, lab_h, lab_w, x, y, h, w, d, img_h, img_w)
+imageLabels = np.zero(n,11)
+imageLabels[:,0:4] = labels
 
-#do training on linear regression
-linreg = linreg()
-linreg.fit()
+# Part 3: Create bounding boxes for our training images
 
-#predict sizes for k objects in n images using linreg
-linreg.predict()
+for i in range(n):
+    imgi = images[:,:,:,i]
+    h,w,c = imgi.shape
+    pilimg = Image.fromarray(imgi, 'RGB')
+    pilimg.show()
 
-#do training on neural nets
+    # bbox size [k,5] where n is image number, k is num of objects in each image
+    # last dimension has x, y, height, width, depth of each bbox in image i
+    bbox = find_BB_and_depth(imgi, depths[i])
 
-#predict sizes for k objects in n images using neuralnets
+    # add to the allBBoxes matrix
+    k = imageLabels[i,1]
+    imageLabels[i, 4:9] = bbox[k]
+    imageLabels[i, 9:11] = (h, w)
+
+    # add to the allBBoxes matrix
+
+# Part 4: Aggregate training data
+
+train_height = imageLabels[:, [6, 8, 9]]
+train_width = imageLabels[:, [7, 8, 10]]
+
+label_height = imageLabels[:, 2]
+label_width = imageLabels[:, 3]
+
+# Part 5: Fit a Linear Regression with training data
+
+# do training on linear regression
+linreg_x = LinearRegression(regLambda = 1E-8)
+linreg_y = LinearRegression(regLambda = 1E-8)
+linreg_x.fit(train_height, label_height)
+linreg_y.fit(train_width, label_width)
+
+# Part 6: Test with new data
+
+unlabeled = np.loadtxt('data/ImageUnLabels.dat', delimiter=',')
+n, d = unlabeled.shape
+
+# array to hold (img#, bb#, null, null, x, y, h, w, d, img_h, img_w)
+imageUnLabeled = np.zero(n,11)
+imageUnLabeled[:,0:2] = unlabeled
+
+# Part 3: Create bounding boxes for our training images
+
+for i in range(n):
+    imgi = images[:,:,:,i]
+    h,w,c = imgi.shape
+    pilimg = Image.fromarray(imgi, 'RGB')
+    pilimg.show()
+
+    # bbox size [k,5] where n is image number, k is num of objects in each image
+    # last dimension has x, y, height, width, depth of each bbox in image i
+    bbox = find_BB_and_depth(imgi, depths[i])
+
+    # add to the allBBoxes matrix
+    k = imageLabels[i,1]
+    imageLabels[i, 4:9] = bbox[k]
+    imageLabels[i, 9:11] = (h, w)
+
+test_height = imageLabels[:, [6, 8, 9]]
+test_width = imageLabels[:, [7, 8, 10]]
+
+# predict sizes for k objects in n images using linreg
+result_height = linreg_x.predict(test_height)
+result_width = linreg_y.predict(test_width)
+
+# do training on neural nets
+
+# TODO: Neural Network
+
+# predict sizes for k objects in n images using neuralnets
