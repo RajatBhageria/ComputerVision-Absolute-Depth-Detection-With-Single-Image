@@ -1,9 +1,5 @@
 import numpy as np
-<<<<<<< HEAD
 import find_BB_and_depth as BoundingBoxDepth
-=======
-import find_BB_and_depth
->>>>>>> 52715afe34616489c47a6f315d8d1c10050b2eab
 # import load_mat_to_python
 import linreg_closedform as LinearRegression
 from PIL import Image
@@ -37,7 +33,7 @@ imageLabels[:,0:4] = labels
 # Part 3: Create bounding boxes for our training images
 
 for i in range(n):
-    imgNum = imageLabels[i,0]
+    imgNum = int(imageLabels[i,0])
     imgi = images[:,:,:,imgNum]
     h,w,c = imgi.shape
     pilimg = Image.fromarray(imgi, 'RGB')
