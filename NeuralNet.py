@@ -2,9 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 import tensorflow as tf
+import numpy as np
 
-#NOTE: Much of this code was adapted from dnn_iris_custom_model created by the Professor
-# as well as from the examples on Tensorflow.org
 
 def myModel(features, labels, mode):
     # Create three fully connected layers respectively of size 10, 20, and 10 with
@@ -64,10 +63,9 @@ def runNeuralNet(Xtrain, Ytrain, Xtest):
     print("train metrics: %r" % train_metrics)
 
     # predict classes for the test data
-    test_input_fn = tf.estimator.inputs.numpy_input_fn(x={X_FEATURE: x_test}, num_epochs=1, shuffle=False)
+    test_input_fn = tf.estimator.inputs.numpy_input_fn({"x": Xtest}, num_epochs=1, shuffle=False)
     predictions = estimator.predict(input_fn=test_input_fn)
     y_predicted = np.array(list(p['class'] for p in predictions))
-    y_predicted = y_predicted.reshape(np.array(y_test).shape)
 
     return y_predicted
 

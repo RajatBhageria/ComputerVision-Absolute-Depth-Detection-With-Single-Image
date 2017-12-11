@@ -114,6 +114,7 @@ def estimateSize():
     yHatHeight = linreg_x.predict(Xtest_height)
     yHatWidth = linreg_y.predict(Xtest_width)
 
+    y_hat_linreg = np.hstack((yHatHeight,yHatWidth))
 
     # Part 8: Fit a Neural nets with training data
 
@@ -131,7 +132,6 @@ def estimateSize():
     Xtest = np.append(heightWidth, train_width[:, 1])
 
     y_hat_NN = runNeuralNet(Xtrain, Ytrain, Xtest)
-
 
 if __name__ == '__main__':
     estimateSize()
