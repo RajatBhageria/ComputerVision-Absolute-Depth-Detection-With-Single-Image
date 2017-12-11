@@ -1,9 +1,5 @@
 import numpy as np
-<<<<<<< HEAD
-import find_BB_and_depth as BoundingBoxDepth
-=======
-import find_BB_and_depth
->>>>>>> 52715afe34616489c47a6f315d8d1c10050b2eab
+from find_BB_and_depth import find_BB_and_depth
 # import load_mat_to_python
 import linreg_closedform as LinearRegression
 from PIL import Image
@@ -37,15 +33,15 @@ imageLabels[:,0:4] = labels
 # Part 3: Create bounding boxes for our training images
 
 for i in range(n):
-    imgNum = imageLabels[i,0]
+    imgNum = int(imageLabels[i,0])
     imgi = images[:,:,:,imgNum]
     h,w,c = imgi.shape
     pilimg = Image.fromarray(imgi, 'RGB')
-    pilimg.show()
+    #pilimg.show()
 
     # bbox size [k,5] where n is image number, k is num of objects in each image
     # last dimension has x, y, height, width, depth of each bbox in image i
-    bbox = BoundingBoxDepth(imgi, depths[:,:,i])
+    bbox = find_BB_and_depth(imgi, depths[:,:,i])
 
     # add to the allBBoxes matrix
     k = imageLabels[i,1]
