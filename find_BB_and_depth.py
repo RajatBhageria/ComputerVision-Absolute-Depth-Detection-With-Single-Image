@@ -19,10 +19,11 @@ def (img_rgb, pixel_depths):
 		
 		depth = np.mean(pixel_depths[y:y+h, x:x+w])
 		
-		output[i,:] = [x,y,w,h,depth]
+		output[i,:] = x,y,w,h,depth
 	
 	#cv2.drawContours(img, contours, -1, (255, 255, 0), 1)
 	#cv2.imshow("contours", img)
 	cv2.destroyAllWindows()
 	
 	return output
+	#the type is a [k, 5] array, the 5 features are x, y, w, h, depth_of_bb_in_meters
