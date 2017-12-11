@@ -1,7 +1,7 @@
 import scipy.io as sio
 import numpy as np
 
-sio.whosmat('filename.mat')
+sio.whosmat('nyu_depth_v2_labeled.mat')
 
 #matlab_contents = sio.loadmat('filename.mat')
 
