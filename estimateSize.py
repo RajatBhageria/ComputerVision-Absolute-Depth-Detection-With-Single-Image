@@ -14,8 +14,6 @@ def estimateSize():
     # convert the matlab file to python
     # load_mat_to_python()
 
-    # DONE
-
     # Part 1: Loading image and associated depth data into python
 
     # load all the data
@@ -118,12 +116,12 @@ def estimateSize():
 
     # Part 8: Fit a Neural nets with training data
 
-    # remassage the features
+    # re-massage the features
     # width of the bbox, Px, height of bbox, Py, depth
     heightWidth = np.hstack((train_height[:, [0, 2]], train_width[:, [0, 2]]))
     Xtrain = np.c_[heightWidth, train_width[:, 1]]
 
-    #remassage the ytrain
+    #re-massage the ytrain
     #heights and widths in meters
     Ytrain = np.vstack((label_height, label_width)).T
 
