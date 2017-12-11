@@ -67,12 +67,12 @@ def estimateSize():
 
     # Part 5: Generate the test data
     # image number, bouning box number
-    unlabeled = np.loadtxt('data/ImageUnLabeled.dat', delimiter=',')
+    unlabeledWithDescription = np.loadtxt('data/ImageUnLabeled.dat', delimiter=',')
     n, d = unlabeled.shape
 
     # array to hold (img#, bb#, null, null, x, y, h, w, d, img_h, img_w)
     imageUnLabeled = np.zeros((n, 11))
-    imageUnLabeled[:, 0:2] = unlabeled
+    imageUnLabeled[:, 0:2] = unlabeledWithDescription[:,0:2]
 
     # Part 6: Create bounding boxes for our testing images
     for i in range(n):
