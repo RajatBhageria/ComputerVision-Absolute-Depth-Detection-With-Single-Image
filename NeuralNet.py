@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-import numpy as np
 import tensorflow as tf
 
 #NOTE: Much of this code was adapted from dnn_iris_custom_model created by the Professor
@@ -11,9 +10,9 @@ def myModel(features, labels, mode):
     # Create three fully connected layers respectively of size 10, 20, and 10 with
     # each layer having a dropout probability of 0.1
     net = features["x"]
-    numClasses = 10
-    numFeatures = 400
-    for units in [numFeatures, 350, 100, 50, numClasses]:
+    numClasses = 2
+    numFeatures = 5
+    for units in [numFeatures, 4, 3, numClasses]:
         net = tf.layers.dense(net, units=units, activation=tf.nn.relu)
         net = tf.layers.dropout(net, rate=0.1)
 
@@ -50,15 +49,7 @@ def myModel(features, labels, mode):
 
     return tf.estimator.EstimatorSpec(mode, loss=loss, eval_metric_ops=eval_metric_ops)
 
-def main(unused_argv):
-    #load the data
-    filenameX = 'data/digitsX.dat'
-    Xtrain = np.loadtxt(filenameX, delimiter=',')
-
-    filenameY = 'data/digitsY.dat'
-    Ytrain = np.loadtxt(filenameY, delimiter=',')
-    Ytrain = np.int_(Ytrain) #convert Ytrain to be ints not floats
-
+def runNeuralNet(Xtrain, Ytrain, Xtest):
     #get the classifier
     estimator = tf.estimator.Estimator(model_fn=myModel)
 
@@ -71,6 +62,14 @@ def main(unused_argv):
     train_input_fn = tf.estimator.inputs.numpy_input_fn({"x": Xtrain}, y=Ytrain, batch_size=4, num_epochs=1, shuffle=False)
     train_metrics = estimator.evaluate(input_fn=train_input_fn)
     print("train metrics: %r" % train_metrics)
+
+    # predict classes for the test data
+    test_input_fn = tf.estimator.inputs.numpy_input_fn(x={X_FEATURE: x_test}, num_epochs=1, shuffle=False)
+    predictions = estimator.predict(input_fn=test_input_fn)
+    y_predicted = np.array(list(p['class'] for p in predictions))
+    y_predicted = y_predicted.reshape(np.array(y_test).shape)
+
+    return y_predicted
 
 if __name__ == '__main__':
     tf.app.run()

@@ -4,6 +4,7 @@ from find_BB_and_depth import find_BB_and_depth
 # import load_mat_to_python
 from linreg_closedform import LinearRegressionClosedForm as LinearRegression
 from PIL import Image
+from NeuralNet import runNeuralNet
 import sys
 
 def estimateSize():
@@ -58,59 +59,79 @@ def estimateSize():
 
     # Part 4: Aggregate training data
 
+    #X train- training height and widths
     train_height = imageLabels[:, [6, 8, 9]]
     train_width = imageLabels[:, [7, 8, 10]]
 
+    #Y train- training heights and widths
     label_height = imageLabels[:, 2]
     label_width = imageLabels[:, 3]
 
-    # Part 5: Fit a Linear Regression with training data
-
-    # do training on linear regression
-    linreg_x = LinearRegression(regLambda = 1E-8)
-    linreg_y = LinearRegression(regLambda = 1E-8)
-    linreg_x.fit(train_height, label_height)
-    linreg_y.fit(train_width, label_width)
-
-    # Part 6: Test with new data
-
+    # Part 5: Generate the test data
+    # image number, bouning box number
     unlabeled = np.loadtxt('data/ImageUnLabeled.dat', delimiter=',')
     n, d = unlabeled.shape
 
     # array to hold (img#, bb#, null, null, x, y, h, w, d, img_h, img_w)
-    imageUnLabeled = np.zero(n,11)
-    imageUnLabeled[:,0:2] = unlabeled
+    imageUnLabeled = np.zeros((n, 11))
+    imageUnLabeled[:, 0:2] = unlabeled
 
-    # Part 7: Create bounding boxes for our testing images
-
+    # Part 6: Create bounding boxes for our testing images
     for i in range(n):
-        imgNum = imageUnLabeled[i,0]
-        imgi = images[:,:,:,imgNum]
-        h,w,c = imgi.shape
+        imgNum = int(imageUnLabeled[i, 0])
+        imgi = images[:, :, :, imgNum]
+        h, w, c = imgi.shape
+
+        # show the image
         pilimg = Image.fromarray(imgi, 'RGB')
         pilimg.show()
 
         # bbox size [k,5] where n is image number, k is num of objects in each image
         # last dimension has x, y, height, width, depth of each bbox in image i
-        bbox = find_BB_and_depth(imgi, depths[i])
+        bbox = find_BB_and_depth(imgi, depths[:, :, i], True)
 
-        # add to the allBBoxes matrix
-        k = imageUnLabeled[i,1]
-        imageUnLabeled[i, 4:9] = bbox[k]
-        imageUnLabeled[i, 9:11] = (h, w)
+        # get the bouning box number
+        k = int(imageLabels[i, 1])
 
-    test_height = imageUnLabeled[:, [6, 8, 9]]
-    test_width = imageUnLabeled[:, [7, 8, 10]]
+        # add the bbox values to the imageLabel
+        imageLabels[i, 4:9] = bbox[k]
 
-    # predict sizes for k objects in n images using linreg
-    result_height = linreg_x.predict(test_height)
-    result_width = linreg_y.predict(test_width)
+        # add the height width of the image to the imageLabels
+        imageLabels[i, 9:11] = (h, w)
 
-    # do training on neural nets
+    Xtest_height = imageUnLabeled[:, [6, 8, 9]]
+    Xtest_width = imageUnLabeled[:, [7, 8, 10]]
 
-    # TODO: Neural Network
+    # Part 6: Fit a Linear Regression with training data
+    # do training on linear regression
+    linreg_x = LinearRegression(regLambda = 1E-8)
+    linreg_y = LinearRegression(regLambda = 1E-8)
 
-    # predict sizes for k objects in n images using neuralnets
+    linreg_x.fit(train_height, label_height)
+    linreg_y.fit(train_width, label_width)
+
+    # Part 7: predict heights and widths using linreg
+    yHatHeight = linreg_x.predict(Xtest_height)
+    yHatWidth = linreg_y.predict(Xtest_width)
+
+
+    # Part 8: Fit a Neural nets with training data
+
+    # remassage the features
+    # width of the bbox, Px, height of bbox, Py, depth
+    heightWidth = np.hstack((train_height[:, [0, 2]], train_width[:, [0, 2]]))
+    Xtrain = np.append(heightWidth, train_width[:, 1])
+
+    #remassage the ytrain
+    #heights and widths in meters
+    Ytrain = np.vstack((label_height, label_width)).T
+
+    #get the Xtest data
+    heightWidth = np.hstack((Xtest_height[:, [0, 2]], Xtest_width[:, [0, 2]]))
+    Xtest = np.append(heightWidth, train_width[:, 1])
+
+    y_hat_NN = runNeuralNet(Xtrain, Ytrain, Xtest)
+
 
 if __name__ == '__main__':
     estimateSize()
