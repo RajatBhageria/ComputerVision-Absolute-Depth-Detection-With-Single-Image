@@ -1,6 +1,12 @@
 import numpy as np
+import find_BB_and_depth
+import load_mat_to_python
+import linreg
 
 #part 0: get the depths
+
+#convert the matlab file to python
+#load_mat_to_python()
 
 #load all the data
 depths = np.load('nyu_dataset_depths.npy')
@@ -27,9 +33,11 @@ for i in range (0,len(imgs)):
 labels = [];
 
 #do training on linear regression
-linreg_closedform()
+linreg = linreg()
+linreg.fit()
 
 #predict sizes for k objects in n images using linreg
+linreg.predict()
 
 #do training on neural nets
 
