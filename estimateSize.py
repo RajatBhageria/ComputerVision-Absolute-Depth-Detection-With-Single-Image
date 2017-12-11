@@ -1,7 +1,6 @@
 import numpy as np
 import cv2
 from find_BB_and_depth import find_BB_and_depth
-
 # import load_mat_to_python
 import linreg_closedform as LinearRegression
 from PIL import Image
@@ -23,6 +22,7 @@ images = np.load('data/nyu_dataset_images.npy')
 # names = np.load('nyu_dataset_names.npy')
 # scenes = np.load('nyu_dataset_scenes.npy')
 
+
 # Part 2: Import labels n by 4 (img #, bb#, lab_h, lab_w)
 
 labels = np.loadtxt('data/ImageLabels.dat', delimiter=',')
@@ -38,7 +38,9 @@ for i in range(n):
     imgNum = int(imageLabels[i,0])
     imgi = images[:,:,:,imgNum]
     h,w,c = imgi.shape
-    pilimg = Image.fromarray(imgi, 'RGB')
+
+    #show the image
+    #pilimg = Image.fromarray(imgi, 'RGB')
     #pilimg.show()
 
     # bbox size [k,5] where n is image number, k is num of objects in each image
@@ -47,7 +49,11 @@ for i in range(n):
 
     # add to the allBBoxes matrix
     k = int(imageLabels[i,1])
+
+    #add the bbox values to the imageLabel
     imageLabels[i, 4:9] = bbox[k]
+
+    #add the height width of the image to the imageLabels
     imageLabels[i, 9:11] = (h, w)
 
     # add to the allBBoxes matrix
