@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from find_BB_and_depth import find_BB_and_depth
+from find_BB_and_depthTest import find_BB_and_depth as find_BB_and_depth
 # import load_mat_to_python
 from linreg_closedform import LinearRegressionClosedForm as LinearRegression
 from PIL import Image
@@ -61,7 +61,7 @@ while(1):
             break
         pilimg = Image.fromarray(imgi, 'RGB')
         pilimg.show()
-        
+
     i = i+1;
 
     # # add to the allBBoxes matrix
