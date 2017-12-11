@@ -6,110 +6,111 @@ from linreg_closedform import LinearRegressionClosedForm as LinearRegression
 from PIL import Image
 import sys
 
-# Part 0: Loading the data with depth from matlab to python
+def estimateSize():
 
-# convert the matlab file to python
-# load_mat_to_python()
+    # Part 0: Loading the data with depth from matlab to python
 
-# DONE
+    # convert the matlab file to python
+    # load_mat_to_python()
 
-# Part 1: Loading image and associated depth data into python
+    # DONE
 
-# load all the data
-depths = np.load('data/nyu_dataset_depths.npy')
-images = np.load('data/nyu_dataset_images.npy')
-# labels = np.load('nyu_dataset_labels.npy')
-# names = np.load('nyu_dataset_names.npy')
-# scenes = np.load('nyu_dataset_scenes.npy')
+    # Part 1: Loading image and associated depth data into python
 
+    # load all the data
+    depths = np.load('data/nyu_dataset_depths.npy')
+    images = np.load('data/nyu_dataset_images.npy')
+    # labels = np.load('nyu_dataset_labels.npy')
+    # names = np.load('nyu_dataset_names.npy')
+    # scenes = np.load('nyu_dataset_scenes.npy')
 
-# Part 2: Import labels n by 4 (img #, bb#, lab_h, lab_w)
+    # Part 2: Import labels n by 4 (img #, bb#, lab_h, lab_w)
 
-labels = np.loadtxt('data/ImageLabels.dat', delimiter=',')
-n, d = labels.shape
+    labels = np.loadtxt('data/ImageLabels.dat', delimiter=',')
+    n, d = labels.shape
 
-# array to hold (img#, bb#, lab_h, lab_w, x, y, h, w, d, img_h, img_w)
-imageLabels = np.zeros((n,11))
-imageLabels[:,0:4] = labels
+    # array to hold (img#, bb#, lab_h, lab_w, x, y, h, w, d, img_h, img_w)
+    imageLabels = np.zeros((n,11))
+    imageLabels[:,0:4] = labels
 
-# Part 3: Create bounding boxes for our training images
+    # Part 3: Create bounding boxes for our training images
+    for i in range(n):
+        imgNum = int(imageLabels[i,0])
+        imgi = images[:,:,:,imgNum]
+        h,w,c = imgi.shape
 
-for i in range(n):
-    imgNum = int(imageLabels[i,0])
-    imgi = images[:,:,:,imgNum]
-    h,w,c = imgi.shape
+        #show the image
+        pilimg = Image.fromarray(imgi, 'RGB')
+        pilimg.show()
 
-    #show the image
-    pilimg = Image.fromarray(imgi, 'RGB')
-    pilimg.show()
+        # bbox size [k,5] where n is image number, k is num of objects in each image
+        # last dimension has x, y, height, width, depth of each bbox in image i
+        bbox = find_BB_and_depth(imgi, depths[:,:,i], True)
 
-    # bbox size [k,5] where n is image number, k is num of objects in each image
-    # last dimension has x, y, height, width, depth of each bbox in image i
-    bbox = find_BB_and_depth(imgi, depths[:,:,i], True)
+        # add to the allBBoxes matrix
+        k = int(imageLabels[i,1])
 
-    # add to the allBBoxes matrix
-    k = int(imageLabels[i,1])
+        #add the bbox values to the imageLabel
+        imageLabels[i, 4:9] = bbox[k]
 
-    #add the bbox values to the imageLabel
-    imageLabels[i, 4:9] = bbox[k]
+        #add the height width of the image to the imageLabels
+        imageLabels[i, 9:11] = (h, w)
 
-    #add the height width of the image to the imageLabels
-    imageLabels[i, 9:11] = (h, w)
+    # Part 4: Aggregate training data
 
-    # add to the allBBoxes matrix
+    train_height = imageLabels[:, [6, 8, 9]]
+    train_width = imageLabels[:, [7, 8, 10]]
 
-# Part 4: Aggregate training data
+    label_height = imageLabels[:, 2]
+    label_width = imageLabels[:, 3]
 
-train_height = imageLabels[:, [6, 8, 9]]
-train_width = imageLabels[:, [7, 8, 10]]
+    # Part 5: Fit a Linear Regression with training data
 
-label_height = imageLabels[:, 2]
-label_width = imageLabels[:, 3]
+    # do training on linear regression
+    linreg_x = LinearRegression(regLambda = 1E-8)
+    linreg_y = LinearRegression(regLambda = 1E-8)
+    linreg_x.fit(train_height, label_height)
+    linreg_y.fit(train_width, label_width)
 
-# Part 5: Fit a Linear Regression with training data
+    # Part 6: Test with new data
 
-# do training on linear regression
-linreg_x = LinearRegression(regLambda = 1E-8)
-linreg_y = LinearRegression(regLambda = 1E-8)
-linreg_x.fit(train_height, label_height)
-linreg_y.fit(train_width, label_width)
+    unlabeled = np.loadtxt('data/ImageUnLabeled.dat', delimiter=',')
+    n, d = unlabeled.shape
 
-# Part 6: Test with new data
+    # array to hold (img#, bb#, null, null, x, y, h, w, d, img_h, img_w)
+    imageUnLabeled = np.zero(n,11)
+    imageUnLabeled[:,0:2] = unlabeled
 
-unlabeled = np.loadtxt('data/ImageUnLabeled.dat', delimiter=',')
-n, d = unlabeled.shape
+    # Part 7: Create bounding boxes for our testing images
 
-# array to hold (img#, bb#, null, null, x, y, h, w, d, img_h, img_w)
-imageUnLabeled = np.zero(n,11)
-imageUnLabeled[:,0:2] = unlabeled
+    for i in range(n):
+        imgNum = imageUnLabeled[i,0]
+        imgi = images[:,:,:,imgNum]
+        h,w,c = imgi.shape
+        pilimg = Image.fromarray(imgi, 'RGB')
+        pilimg.show()
 
-# Part 7: Create bounding boxes for our testing images
+        # bbox size [k,5] where n is image number, k is num of objects in each image
+        # last dimension has x, y, height, width, depth of each bbox in image i
+        bbox = find_BB_and_depth(imgi, depths[i])
 
-for i in range(n):
-    imgNum = imageUnLabeled[i,0]
-    imgi = images[:,:,:,imgNum]
-    h,w,c = imgi.shape
-    pilimg = Image.fromarray(imgi, 'RGB')
-    pilimg.show()
+        # add to the allBBoxes matrix
+        k = imageUnLabeled[i,1]
+        imageUnLabeled[i, 4:9] = bbox[k]
+        imageUnLabeled[i, 9:11] = (h, w)
 
-    # bbox size [k,5] where n is image number, k is num of objects in each image
-    # last dimension has x, y, height, width, depth of each bbox in image i
-    bbox = find_BB_and_depth(imgi, depths[i])
+    test_height = imageUnLabeled[:, [6, 8, 9]]
+    test_width = imageUnLabeled[:, [7, 8, 10]]
 
-    # add to the allBBoxes matrix
-    k = imageUnLabeled[i,1]
-    imageUnLabeled[i, 4:9] = bbox[k]
-    imageUnLabeled[i, 9:11] = (h, w)
+    # predict sizes for k objects in n images using linreg
+    result_height = linreg_x.predict(test_height)
+    result_width = linreg_y.predict(test_width)
 
-test_height = imageUnLabeled[:, [6, 8, 9]]
-test_width = imageUnLabeled[:, [7, 8, 10]]
+    # do training on neural nets
 
-# predict sizes for k objects in n images using linreg
-result_height = linreg_x.predict(test_height)
-result_width = linreg_y.predict(test_width)
+    # TODO: Neural Network
 
-# do training on neural nets
+    # predict sizes for k objects in n images using neuralnets
 
-# TODO: Neural Network
-
-# predict sizes for k objects in n images using neuralnets
+if __name__ == '__main__':
+    estimateSize()
