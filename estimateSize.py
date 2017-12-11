@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 from find_BB_and_depth import find_BB_and_depth
 
 # import load_mat_to_python
@@ -28,7 +29,7 @@ labels = np.loadtxt('data/ImageLabels.dat', delimiter=',')
 n, d = labels.shape
 
 # array to hold (img#, bb#, lab_h, lab_w, x, y, h, w, d, img_h, img_w)
-imageLabels = np.zeroes(n,11)
+imageLabels = np.zeros((n,11))
 imageLabels[:,0:4] = labels
 
 # Part 3: Create bounding boxes for our training images
@@ -42,7 +43,7 @@ for i in range(n):
 
     # bbox size [k,5] where n is image number, k is num of objects in each image
     # last dimension has x, y, height, width, depth of each bbox in image i
-    bbox = find_BB_and_depth(imgi, depths[:,:,i])
+    bbox = find_BB_and_depth(imgi, depths[:,:,i], True)
 
     # add to the allBBoxes matrix
     k = imageLabels[i,1]
