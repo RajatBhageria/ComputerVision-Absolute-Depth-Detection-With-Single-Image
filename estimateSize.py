@@ -46,7 +46,7 @@ for i in range(n):
     bbox = find_BB_and_depth(imgi, depths[:,:,i], True)
 
     # add to the allBBoxes matrix
-    k = imageLabels[i,1]
+    k = int(imageLabels[i,1])
     imageLabels[i, 4:9] = bbox[k]
     imageLabels[i, 9:11] = (h, w)
 

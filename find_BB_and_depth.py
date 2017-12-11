@@ -24,7 +24,7 @@ def find_BB_and_depth(img_rgb, pixel_depths, drawContours = False):
     if drawContours :
         cv2.drawContours(img, contours, -1, (255, 255, 0), 1)
         cv2.imshow("contours", img)
-        cv2.waitKey(0)
+        raw_input("Press Enter to continue...")
     cv2.destroyAllWindows()
 
     return output
