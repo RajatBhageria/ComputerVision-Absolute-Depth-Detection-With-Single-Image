@@ -1,10 +1,11 @@
 import numpy as np
 import cv2
+import csv
 from find_BB_and_depth import find_BB_and_depth
 # import load_mat_to_python
 from linreg_closedform import LinearRegressionClosedForm as LinearRegression
 from PIL import Image
-from NeuralNet import runNeuralNet
+# from NeuralNet import runNeuralNet
 import sys
 
 def estimateSize():
@@ -34,17 +35,18 @@ def estimateSize():
 
     # Part 3: Create bounding boxes for our training images
     for i in range(n):
+        print("Testing on: " + str(imageLabels[i]))
         imgNum = int(imageLabels[i,0])
         imgi = images[:,:,:,imgNum]
         h,w,c = imgi.shape
 
         #show the image
-        pilimg = Image.fromarray(imgi, 'RGB')
-        pilimg.show()
+        # pilimg = Image.fromarray(imgi, 'RGB')
+        # pilimg.show()
 
         # bbox size [k,5] where n is image number, k is num of objects in each image
         # last dimension has x, y, height, width, depth of each bbox in image i
-        bbox = find_BB_and_depth(imgi, depths[:,:,i], True)
+        bbox = find_BB_and_depth(imgi, depths[:,:,imgNum], False)
 
         # add to the allBBoxes matrix
         k = int(imageLabels[i,1])
@@ -58,8 +60,13 @@ def estimateSize():
     # Part 4: Aggregate training data
 
     #X train- training height and widths
-    train_height = imageLabels[:, [6, 8, 9]]
-    train_width = imageLabels[:, [7, 8, 10]]
+
+    train_height = (imageLabels[:, 9]/2 - imageLabels[:, 6]) * imageLabels[:, 8]
+    train_width = (imageLabels[:, 10]/2 - imageLabels[:, 7]) * imageLabels[:, 8]
+
+# Old features
+    # train_height = imageLabels[:, [6, 8, 9]]
+    # train_width = imageLabels[:, [7, 8, 10]]
 
     #Y train- training heights and widths
     label_height = imageLabels[:, 2]
@@ -67,8 +74,8 @@ def estimateSize():
 
     # Part 5: Generate the test data
     # image number, bouning box number
-    unlabeledWithDescription = np.loadtxt('data/ImageUnLabeled.dat', delimiter=',')
-    n, d = unlabeled.shape
+    unlabeledWithDescription = np.loadtxt('data/ImageUnLabeled.dat', delimiter=',', usecols=(0,1))
+    n = len(unlabeledWithDescription.shape)
 
     # array to hold (img#, bb#, null, null, x, y, h, w, d, img_h, img_w)
     imageUnLabeled = np.zeros((n, 11))
@@ -81,12 +88,12 @@ def estimateSize():
         h, w, c = imgi.shape
 
         # show the image
-        pilimg = Image.fromarray(imgi, 'RGB')
-        pilimg.show()
+        # pilimg = Image.fromarray(imgi, 'RGB')
+        # pilimg.show()
 
         # bbox size [k,5] where n is image number, k is num of objects in each image
         # last dimension has x, y, height, width, depth of each bbox in image i
-        bbox = find_BB_and_depth(imgi, depths[:, :, i], True)
+        bbox = find_BB_and_depth(imgi, depths[:, :, imgNum], False)
 
         # get the bouning box number
         k = int(imageLabels[i, 1])
@@ -97,8 +104,12 @@ def estimateSize():
         # add the height width of the image to the imageLabels
         imageLabels[i, 9:11] = (h, w)
 
-    Xtest_height = imageUnLabeled[:, [6, 8, 9]]
-    Xtest_width = imageUnLabeled[:, [7, 8, 10]]
+    Xtest_height = (imageUnLabeled[:, 10]/2 - imageUnLabeled[:, 7]) * imageUnLabeled[:, 8]
+    Xtest_width = (imageUnLabeled[:, 10]/2 - imageUnLabeled[:, 7]) * imageUnLabeled[:, 8]
+
+    # Old
+        # Xtest_height = imageUnLabeled[:, [6, 8, 9]]
+        # Xtest_width = imageUnLabeled[:, [7, 8, 10]]
 
     # Part 6: Fit a Linear Regression with training data
     # do training on linear regression
@@ -112,7 +123,12 @@ def estimateSize():
     yHatHeight = linreg_x.predict(Xtest_height)
     yHatWidth = linreg_y.predict(Xtest_width)
 
+    print("yHatHeight:" + str(yHatHeight))
+    print("yHatWidth:" + str(yHatWidth))
+
     y_hat_linreg = np.hstack((yHatHeight,yHatWidth))
+
+    sys.exit()
 
     # Part 8: Fit a Neural nets with training data
 
