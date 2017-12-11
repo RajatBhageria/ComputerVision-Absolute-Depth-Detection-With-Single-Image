@@ -1,12 +1,21 @@
 import scipy.io as sio
 import numpy as np
 
-sio.whosmat('nyu_depth_v2_labeled.mat')
+print sio.whosmat('modified.mat')
 
-#matlab_contents = sio.loadmat('filename.mat')
+matlab_contents = sio.loadmat('modified.mat')
 
-#target_array = matlab_contents['array_name_here']
+depths = matlab_contents['depths']
+np.save('nyu_dataset_depths', depths)
 
-#print target_array
+images = matlab_contents['images']
+np.save('nyu_dataset_images', images)
 
-#np.save('nyu_dataset', target_array);
+labels = matlab_contents['labels']
+np.save('nyu_dataset_labels', labels)
+
+names = matlab_contents['names']
+np.save('nyu_dataset_names', names)
+
+scenes = matlab_contents['scenes']
+np.save('nyu_dataset_scenes', scenes)
