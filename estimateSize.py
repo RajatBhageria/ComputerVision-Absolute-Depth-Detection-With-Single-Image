@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 from find_BB_and_depth import find_BB_and_depth
 # import load_mat_to_python
-import linreg_closedform as LinearRegression
+from linreg_closedform import LinearRegressionClosedForm as LinearRegression
 from PIL import Image
 import sys
 
@@ -40,8 +40,8 @@ for i in range(n):
     h,w,c = imgi.shape
 
     #show the image
-    #pilimg = Image.fromarray(imgi, 'RGB')
-    #pilimg.show()
+    pilimg = Image.fromarray(imgi, 'RGB')
+    pilimg.show()
 
     # bbox size [k,5] where n is image number, k is num of objects in each image
     # last dimension has x, y, height, width, depth of each bbox in image i
@@ -76,7 +76,7 @@ linreg_y.fit(train_width, label_width)
 
 # Part 6: Test with new data
 
-unlabeled = np.loadtxt('data/ImageUnLabels.dat', delimiter=',')
+unlabeled = np.loadtxt('data/ImageUnLabeled.dat', delimiter=',')
 n, d = unlabeled.shape
 
 # array to hold (img#, bb#, null, null, x, y, h, w, d, img_h, img_w)
