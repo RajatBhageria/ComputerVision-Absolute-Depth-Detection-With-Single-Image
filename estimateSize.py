@@ -1,5 +1,9 @@
 import numpy as np
+<<<<<<< HEAD
 import find_BB_and_depth as BoundingBoxDepth
+=======
+import find_BB_and_depth
+>>>>>>> 52715afe34616489c47a6f315d8d1c10050b2eab
 # import load_mat_to_python
 import linreg_closedform as LinearRegression
 from PIL import Image
@@ -75,7 +79,7 @@ n, d = unlabeled.shape
 imageUnLabeled = np.zero(n,11)
 imageUnLabeled[:,0:2] = unlabeled
 
-# Part 3: Create bounding boxes for our training images
+# Part 7: Create bounding boxes for our testing images
 
 for i in range(n):
     imgNum = imageUnLabeled[i,0]
@@ -89,12 +93,12 @@ for i in range(n):
     bbox = find_BB_and_depth(imgi, depths[i])
 
     # add to the allBBoxes matrix
-    k = imageLabels[i,1]
-    imageLabels[i, 4:9] = bbox[k]
-    imageLabels[i, 9:11] = (h, w)
+    k = imageUnLabeled[i,1]
+    imageUnLabeled[i, 4:9] = bbox[k]
+    imageUnLabeled[i, 9:11] = (h, w)
 
-test_height = imageLabels[:, [6, 8, 9]]
-test_width = imageLabels[:, [7, 8, 10]]
+test_height = imageUnLabeled[:, [6, 8, 9]]
+test_width = imageUnLabeled[:, [7, 8, 10]]
 
 # predict sizes for k objects in n images using linreg
 result_height = linreg_x.predict(test_height)

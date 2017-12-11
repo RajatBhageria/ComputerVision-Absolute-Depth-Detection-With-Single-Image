@@ -18,8 +18,8 @@ def find_BB_and_depth(img_rgb, pixel_depths):
 		cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
 		
 		depth = np.mean(pixel_depths[2*y:2*(y+h), 2*x:2*(x+w)])
-		
-		output[i,:] = x*2,y*2,w*2,h*2,depth
+		if w > 15 and h > 15 and w < 600 and h < 400:
+			output[i,:] = x*2,y*2,w*2,h*2,depth
 	
 	#cv2.drawContours(img, contours, -1, (255, 255, 0), 1)
 	#cv2.imshow("contours", img)
