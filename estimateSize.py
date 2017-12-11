@@ -121,7 +121,7 @@ def estimateSize():
     # remassage the features
     # width of the bbox, Px, height of bbox, Py, depth
     heightWidth = np.hstack((train_height[:, [0, 2]], train_width[:, [0, 2]]))
-    Xtrain = np.append(heightWidth, train_width[:, 1])
+    Xtrain = np.c_[heightWidth, train_width[:, 1]]
 
     #remassage the ytrain
     #heights and widths in meters
@@ -129,7 +129,7 @@ def estimateSize():
 
     #get the Xtest data
     heightWidth = np.hstack((Xtest_height[:, [0, 2]], Xtest_width[:, [0, 2]]))
-    Xtest = np.append(heightWidth, train_width[:, 1])
+    Xtest = np.c_[heightWidth, train_width[:, 1]]
 
     y_hat_NN = runNeuralNet(Xtrain, Ytrain, Xtest)
 
