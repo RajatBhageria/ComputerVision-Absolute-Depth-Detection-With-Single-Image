@@ -133,44 +133,31 @@ def estimateSize():
     #
     # y_hat_linreg = np.hstack((yHatHeight, yHatWidth))
 
-    #sys.exit()
-
     # Part 8: Fit a Neural nets with training data
 
-    # re-massage the features
-    # width of the bbox, Px, height of bbox, Py, depth
+    #Get X train
     px = imageLabels[:, 9] / 2
     depth = imageLabels[:, 8]
     height = imageLabels[:, 6]
-
     py = imageLabels[:, 10] / 2
     width = imageLabels[:, 7]
-
-    #heightWidth = np.hstack((train_height[:, [0, 2]], train_width[:, [0, 2]]))
-    #Xtrain = np.c_[heightWidth, train_width[:, 1]]
     Xtrain = np.c_[height, px, width, py, depth]
 
-    # re-massage the ytrain
-    #heights and widths in meters
+    # Get y train
     Ytrain = np.vstack((label_height, label_width)).T
 
-    print Xtrain.shape
-    print Ytrain.shape
+    px_test = imageUnLabeled[:, 9] / 2
+    depth_test = imageUnLabeled[:, 8]
+    height_test = imageUnLabeled[:, 6]
+    py_test = imageUnLabeled[:, 10] / 2
+    width_test = imageUnLabeled[:, 7]
 
-    px = imageLabels[:, 9] / 2
-    depth = imageLabels[:, 8]
-    height = imageLabels[:, 6]
+    #Get x test
+    Xtest = np.c_[height_test, px_test, width_test, py_test, depth_test]
 
-    py = imageLabels[:, 10] / 2
-    width = imageLabels[:, 7]
-
-    # get the Xtest data
-    heightWidth = np.hstack((Xtest_height[:, [0, 2]], Xtest_width[:, [0, 2]]))
-    Xtest = np.c_[heightWidth, train_width[:, 1]]
-
-    print Xtrain.shape
-    print Ytrain.shape
-    print Xtest.shape
+    print Xtrain
+    print Ytrain
+    print Xtest
 
     y_hat_NN = runDNN(Xtrain, Ytrain, Xtest)
     print y_hat_NN
