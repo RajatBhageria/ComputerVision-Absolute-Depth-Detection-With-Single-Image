@@ -9,6 +9,8 @@ def BoundingBoxLabeling(img_rgb, pixel_depths, drawContours = False, imageNum = 
 
     ret, threshed_img = cv2.threshold(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), 127, 255, cv2.THRESH_BINARY)
     image, contours, hier = cv2.findContours(threshed_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    output = np.zeros([len(contours), 5])
     listOfBBs = []
 
     for i in range(len(contours)):
@@ -44,9 +46,8 @@ def BoundingBoxLabeling(img_rgb, pixel_depths, drawContours = False, imageNum = 
 
         line = raw_input("Current imgnum,bbnum: " + str(imageNum) + "," + str(i) + ",")
         if len(line) > 0:
-            f = open("../data/currentlabeling.dat","a+")
-            f.write(str(imageNum) + "," + str(i) + "," + line)
-            f.write("\r\n")
+            f = open("../data/ImageLabels.dat","a+")
+            f.write("\r\n" + str(imageNum) + "," + str(i) + "," + line)
             f.close()
 
         cv2.destroyAllWindows()
