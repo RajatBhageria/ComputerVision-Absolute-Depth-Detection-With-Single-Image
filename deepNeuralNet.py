@@ -1,50 +1,32 @@
 import tensorflow as tf
 import numpy as np
-
-#def getTfModel():
-    #FEATURES = ['width', 'px', 'height', 'py', 'depth']
-
-    #feature_columns = [tf.contrib.layers.real_valued_column(k) for k in FEATURES]
-
-
-    #
-    # def input_fn(x_data, y_data):
-    #     feature_cols = {k: tf.constant(x_data[:, i], shape=[len(x_data[:, i]), 1])
-    #                     for i, k in enumerate(FEATURES)}
-    #     if y_data is None:
-    #         return feature_cols
-    #
-    #     labels = tf.constant(y_data)
-    #     return feature_cols, labels
-    #
-    # return regressor, input_fn
+import itertools
 
 
 def runDNN(Xtrain, Ytrain,Xtest):
+
     FEATURES = ['height/width', 'px/py', 'depth']
 
-    feature_columns = [
-        # "curb-weight" and "highway-mpg" are numeric columns.
-        tf.feature_column.numeric_column(key="height/width"),
-        tf.feature_column.numeric_column(key="px/py"),
-        tf.feature_column.numeric_column(key="depth"),
-    ]
+    feature_cols = [tf.feature_column.numeric_column(k) for k in FEATURES]
 
-    regressor = tf.contrib.learn.DNNRegressor(feature_columns=feature_columns, hidden_units=[4, 3])
-
-    def input_fn(x_data, y_data=None):
-        feature_cols = {k: tf.constant(x_data[:, i], shape=[len(x_data[:, i]), 1]) for i, k in enumerate(FEATURES)}
-        print feature_cols
-        if y_data is None:
-            return feature_cols
-
-        labels = tf.constant(y_data)
-        return feature_cols, labels
+    regressor = tf.contrib.learn.DNNRegressor(feature_columns=feature_cols, hidden_units=[4, 3])
+    def get_input_fn(Xtrain, Ytrain=None, num_epochs=None, shuffle=True):
+        return tf.estimator.inputs.numpy_input_fn(
+            x={FEATURES[i]: Xtrain[:,i] for i in range(0,3)},
+            y=Ytrain,
+            num_epochs=num_epochs,
+            shuffle=shuffle)
 
     #training
-    regressor.fit(input_fn=lambda: input_fn(Xtrain, Ytrain), steps=2000)
+    regressor.fit(input_fn=get_input_fn(Xtrain, Ytrain, 1, False), steps=2000)
+
+    #evaluation
+    ev = regressor.evaluate(
+        input_fn=get_input_fn(Xtrain, Ytrain, 1, False))
+    loss_score = ev["loss"]
+    print("Loss: {0:f}".format(loss_score))
 
     #testing
-    yhat = regressor.predict(input_fn=lambda:input_fn(Xtest,y_data=None))
-
-    return yhat
+    yhat = regressor.predict(input_fn=get_input_fn(Xtest, None, 1, False))
+    predictions = np.array(list(p for p in yhat))
+    return predictions
