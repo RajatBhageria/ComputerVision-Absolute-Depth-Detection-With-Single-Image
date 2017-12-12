@@ -36,7 +36,7 @@ def estimateSize():
 
     # Part 3: Create bounding boxes for our training images
     for i in range(n):
-        print("Testing on: " + str(imageLabels[i]))
+        # print("Testing on: " + str(imageLabels[i]))
         imgNum = int(imageLabels[i, 0])
         imgi = images[:, :, :, imgNum]
         h, w, c = imgi.shape
