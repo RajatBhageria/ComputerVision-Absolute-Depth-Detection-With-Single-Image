@@ -5,7 +5,7 @@ from find_BB_and_depth import find_BB_and_depth
 # import load_mat_to_python
 from linreg_closedform import LinearRegressionClosedForm as LinearRegression
 from PIL import Image
-# from NeuralNet import runNeuralNet
+from deepNeuralNet import runDNN
 import sys
 
 
@@ -118,7 +118,7 @@ def estimateSize():
     # Xtest_width = imageUnLabeled[:, [7, 8, 10]]
 
     # Part 6: Fit a Linear Regression with training data
-    # do training on linear regression
+    #do training on linear regression
     linreg_x = LinearRegression(regLambda=1E-8)
     linreg_y = LinearRegression(regLambda=1E-8)
 
@@ -133,8 +133,6 @@ def estimateSize():
     print("yHatWidth:" + str(yHatWidth))
 
     y_hat_linreg = np.hstack((yHatHeight, yHatWidth))
-
-    sys.exit()
 
     # Part 8: Fit a Neural nets with training data
 
