@@ -129,10 +129,9 @@ def estimateSize():
     yHatHeight = linreg_x.predict(Xtest_height)
     yHatWidth = linreg_y.predict(Xtest_width)
 
+    print "Linear Regression"
     print("yHatHeight:" + str(yHatHeight))
     print("yHatWidth:" + str(yHatWidth))
-
-    y_hat_linreg = np.hstack((yHatHeight, yHatWidth))
 
     # Part 8: Fit a Neural nets with training data
 
@@ -161,10 +160,14 @@ def estimateSize():
     Xtest_height = np.c_[height_test, px_test, depth_test]
     Xtest_width = np.c_[width_test, py_test,depth_test]
 
+    #get the predicted height/width
     y_hat_height = runDNN(Xtrain_height, Ytrain_height, Xtest_height)
     y_hat_width = runDNN(Xtrain_width, Ytrain_width, Xtest_width)
-    print y_hat_height
-    print y_hat_width
+
+    print "Deep Neural Net"
+    print("yHatHeight:" + str(y_hat_height))
+    print("yHatWidth:" + str(y_hat_width))
+
 
 if __name__ == '__main__':
     estimateSize()
