@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 # takes in a rgbd 4 dimensional image
-def find_BB_and_depth(img_rgb, pixel_depths, drawContours = False):
+def find_BB_and_depth(img_rgb, pixel_depths, drawContours = False, imageNum = -1):
     img = cv2.pyrDown(img_rgb)
 
     ret, threshed_img = cv2.threshold(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), 127, 255, cv2.THRESH_BINARY)
@@ -42,7 +42,14 @@ def find_BB_and_depth(img_rgb, pixel_depths, drawContours = False):
         cv2.imshow("contours", img)
         cv2.waitKey(10)
 
-        raw_input("Current bbnum: " + str(i) + " Enter for next bb.")
+        line = raw_input("Current imgnum,bbnum: " + str(imageNum) + "," + str(i) + ",")
+        if len(line) > 0:
+            f = open("data/currentlabeling.dat","a+")
+
+            f.write(str(imageNum) + "," + str(i) + "," + line)
+            f.write("\r\n")
+            f.close()
+
         cv2.destroyAllWindows()
 
     return []
