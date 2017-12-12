@@ -60,12 +60,15 @@ def estimateSize():
 
     # Part 4: Aggregate training data
 
-    # X train- training height and widths
+    train_height = imageLabels[:, 6] * imageLabels[:, 8]
+    train_width = imageLabels[:, 7] * imageLabels[:, 8]
 
-    train_height = (imageLabels[:, 9] / 2 -
-                    imageLabels[:, 6]) * imageLabels[:, 8]
-    train_width = (imageLabels[:, 10] / 2 -
-                   imageLabels[:, 7]) * imageLabels[:, 8]
+    # # X train- training height and widths [before formula realization]
+    #
+    # train_height = (imageLabels[:, 9] / 2 -
+    #                 imageLabels[:, 6]) * imageLabels[:, 8]
+    # train_width = (imageLabels[:, 10] / 2 -
+    #                imageLabels[:, 7]) * imageLabels[:, 8]
 
                    # Old features
     # train_height = imageLabels[:, [6, 8, 9]]
@@ -108,12 +111,14 @@ def estimateSize():
         # add the height width of the image to the imageLabels
         imageUnLabeled[i, 9:11] = (h, w)
 
-    #get the xTest data
-    Xtest_height = (imageUnLabeled[:, 9] / 2 - imageUnLabeled[:, 6]) * imageUnLabeled[:, 8]
+    # get the xTest data
+    Xtest_height = imageUnLabeled[:, 6] * imageUnLabeled[:, 8]
+    Xtest_width = imageUnLabeled[:, 6] * imageUnLabeled[:, 8]
 
-    Xtest_width = (imageUnLabeled[:, 10] / 2 - imageUnLabeled[:, 7]) * imageUnLabeled[:, 8]
-
-    # Old
+    # get the xTest data [before realization]
+    # Xtest_height = (imageUnLabeled[:, 9] / 2 - imageUnLabeled[:, 6]) * imageUnLabeled[:, 8]
+    # Xtest_width = (imageUnLabeled[:, 10] / 2 - imageUnLabeled[:, 7]) * imageUnLabeled[:, 8]
+    # Old [without calculations]
     # Xtest_height = imageUnLabeled[:, [6, 8, 9]]
     # Xtest_width = imageUnLabeled[:, [7, 8, 10]]
 
