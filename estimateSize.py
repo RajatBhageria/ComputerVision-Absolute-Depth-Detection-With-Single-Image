@@ -108,10 +108,10 @@ def estimateSize():
         # add the height width of the image to the imageLabels
         imageUnLabeled[i, 9:11] = (h, w)
 
-    Xtest_height = (imageUnLabeled[:, 10] / 2 -
-                    imageUnLabeled[:, 7]) * imageUnLabeled[:, 8]
-    Xtest_width = (imageUnLabeled[:, 10] / 2 -
-                   imageUnLabeled[:, 7]) * imageUnLabeled[:, 8]
+    #get the xTest data
+    Xtest_height = (imageUnLabeled[:, 9] / 2 - imageUnLabeled[:, 6]) * imageUnLabeled[:, 8]
+
+    Xtest_width = (imageUnLabeled[:, 10] / 2 - imageUnLabeled[:, 7]) * imageUnLabeled[:, 8]
 
     # Old
     # Xtest_height = imageUnLabeled[:, [6, 8, 9]]
