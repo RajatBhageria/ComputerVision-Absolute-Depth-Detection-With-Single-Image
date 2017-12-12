@@ -62,7 +62,7 @@ def cnn_model_fn(features, labels, mode):
   # Densely connected layer with 1024 neurons
   # Input Tensor Shape: [batch_size, 120 * 160 * 16]
   # Output Tensor Shape: [batch_size, 120*160]
-  dense = tf.layers.dense(inputs=pool2_flat, units=1024, activation=tf.nn.relu)
+  dense = tf.layers.dense(inputs=pool2_flat, units=19200, activation=tf.nn.relu)
 
   # Add dropout operation; 0.6 probability that element will be kept
   dropout = tf.layers.dropout(
@@ -71,7 +71,7 @@ def cnn_model_fn(features, labels, mode):
   # Logits layer
   # Input Tensor Shape: [batch_size, 19200]
   # Output Tensor Shape: [batch_size, 10]
-  logits = tf.layers.dense(inputs=dropout, units=10)
+  logits = tf.layers.dense(inputs=dropout, units=307200)
 
   predictions = {
       # Generate predictions (for PREDICT and EVAL mode)
@@ -84,7 +84,9 @@ def cnn_model_fn(features, labels, mode):
     return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
 
   # Calculate Loss (for both TRAIN and EVAL modes)
-  onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=10)
+  onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=10) #honestly this depth should be 10 but i dont care
+  print('i am printing here')
+  print(tf.cast(labels, tf.int32))
   loss = tf.losses.softmax_cross_entropy(
       onehot_labels=onehot_labels, logits=logits)
 
@@ -104,11 +106,13 @@ def cnn_model_fn(features, labels, mode):
       mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
 
 data = np.load('nyu_dataset_images.npy')
-labels = np.load('nyu_dataset_depths.npy')
-train_data = data[:,:,:,:20]
-eval_data = data[:,:,:,20:30]
-train_labels = labels[:,:,:20]
-eval_labels = labels[:,:,20:30]
+labels_data = np.load('nyu_dataset_depths.npy')
+train_data = np.array([data[:,:,:,i] for i in range(20)], dtype='float16')
+eval_data = np.array([data[:,:,:,i] for i in range(20,30)], dtype='float16')
+#train_labels = np.array([labels_data[:,:,i] for i in range(20)])
+#eval_labels = np.array([labels_data[:,:,i] for i in range(20,30)])
+train_labels = np.array([np.array(labels_data[:,:,i]).flatten() for i in range(20)]) #use these for flattened labels
+eval_labels = np.array([np.array(labels_data[:,:,i]).flatten() for i in range(20,30)])
 
 def main(unused_argv):
   # Load training and eval data
