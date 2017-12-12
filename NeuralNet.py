@@ -49,6 +49,8 @@ def myModel(features, labels, mode):
     return tf.estimator.EstimatorSpec(mode, loss=loss, eval_metric_ops=eval_metric_ops)
 
 def runNeuralNet(Xtrain, Ytrain, Xtest):
+    tf.app.run()
+
     #get the classifier
     estimator = tf.estimator.Estimator(model_fn=myModel)
 
