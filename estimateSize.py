@@ -1,12 +1,10 @@
 import numpy as np
-import cv2
-import csv
 from find_BB_and_depth import find_BB_and_depth
 # import load_mat_to_python
-# from linreg import LinearRegression as LinearRegression
 from linreg_closedform import LinearRegressionClosedForm as LinearRegression
 from PIL import Image
 # from NeuralNet import runNeuralNet
+from deepNeuralNet import runDNN
 import sys
 
 
@@ -37,7 +35,7 @@ def estimateSize():
 
     # Part 3: Create bounding boxes for our training images
     for i in range(n):
-        print("Testing on: " + str(imageLabels[i]))
+        #print("Testing on: " + str(imageLabels[i]))
         imgNum = int(imageLabels[i, 0])
         imgi = images[:, :, :, imgNum]
         h, w, c = imgi.shape
@@ -109,8 +107,8 @@ def estimateSize():
         # add the height width of the image to the imageLabels
         imageUnLabeled[i, 9:11] = (h, w)
 
-    Xtest_height = (imageUnLabeled[:, 10] / 2 -
-                    imageUnLabeled[:, 7]) * imageUnLabeled[:, 8]
+    Xtest_height = (imageUnLabeled[:, 9] / 2 -
+                    imageUnLabeled[:, 6]) * imageUnLabeled[:, 8]
     Xtest_width = (imageUnLabeled[:, 10] / 2 -
                    imageUnLabeled[:, 7]) * imageUnLabeled[:, 8]
 
@@ -118,41 +116,55 @@ def estimateSize():
     # Xtest_height = imageUnLabeled[:, [6, 8, 9]]
     # Xtest_width = imageUnLabeled[:, [7, 8, 10]]
 
-    # Part 6: Fit a Linear Regression with training data
-    # do training on linear regression
-    linreg_x = LinearRegression(regLambda=1E-8)
-    linreg_y = LinearRegression(regLambda=1E-8)
+    # # Part 6: Fit a Linear Regression with training data
+    # # do training on linear regression
+    # linreg_x = LinearRegression(regLambda=1E-8)
+    # linreg_y = LinearRegression(regLambda=1E-8)
+    #
+    # linreg_x.fit(train_height, label_height)
+    # linreg_y.fit(train_width, label_width)
+    #
+    # # Part 7: predict heights and widths using linreg
+    # yHatHeight = linreg_x.predict(Xtest_height)
+    # yHatWidth = linreg_y.predict(Xtest_width)
+    #
+    # print("yHatHeight:" + str(yHatHeight))
+    # print("yHatWidth:" + str(yHatWidth))
+    #
+    # y_hat_linreg = np.hstack((yHatHeight, yHatWidth))
 
-    linreg_x.fit(train_height, label_height)
-    linreg_y.fit(train_width, label_width)
-
-    # Part 7: predict heights and widths using linreg
-    yHatHeight = linreg_x.predict(Xtest_height)
-    yHatWidth = linreg_y.predict(Xtest_width)
-
-    print("yHatHeight:" + str(yHatHeight))
-    print("yHatWidth:" + str(yHatWidth))
-
-    y_hat_linreg = np.hstack((yHatHeight, yHatWidth))
-
-    sys.exit()
 
     # Part 8: Fit a Neural nets with training data
 
-    # re-massage the features
-    # width of the bbox, Px, height of bbox, Py, depth
-    heightWidth = np.hstack((train_height[:, [0, 2]], train_width[:, [0, 2]]))
-    Xtrain = np.c_[heightWidth, train_width[:, 1]]
+    #Get X train
+    px = imageLabels[:, 9] / 2
+    depth = imageLabels[:, 8]
+    height = imageLabels[:, 6]
+    py = imageLabels[:, 10] / 2
+    width = imageLabels[:, 7]
 
-    # re-massage the ytrain
-    #heights and widths in meters
-    Ytrain = np.vstack((label_height, label_width)).T
+    Xtrain_height = np.c_[height, px, depth]
+    Xtrain_width = np.c_[width, py, depth]
 
-    # get the Xtest data
-    heightWidth = np.hstack((Xtest_height[:, [0, 2]], Xtest_width[:, [0, 2]]))
-    Xtest = np.c_[heightWidth, train_width[:, 1]]
+    # Get y train
+    #Ytrain = np.vstack((label_height, label_width)).T
+    Ytrain_height = label_height.T
+    Ytrain_width = label_width.T
 
-    y_hat_NN = runNeuralNet(Xtrain, Ytrain, Xtest)
+    #Get x test
+    px_test = imageUnLabeled[:, 9] / 2
+    depth_test = imageUnLabeled[:, 8]
+    height_test = imageUnLabeled[:, 6]
+    py_test = imageUnLabeled[:, 10] / 2
+    width_test = imageUnLabeled[:, 7]
+
+    Xtest_height = np.c_[height_test, px_test, depth_test]
+    Xtest_width = np.c_[width_test, py_test,depth_test]
+
+    y_hat_height = runDNN(Xtrain_height, Ytrain_height, Xtest_height)
+    y_hat_width = runDNN(Xtrain_width, Ytrain_width, Xtest_width)
+    print y_hat_height
+    print y_hat_width
 
 
 if __name__ == '__main__':
