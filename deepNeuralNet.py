@@ -1,8 +1,7 @@
 import tensorflow as tf
 import numpy as np
 
-def getTfModel():
-
+#def getTfModel():
     #FEATURES = ['width', 'px', 'height', 'py', 'depth']
 
     #feature_columns = [tf.contrib.layers.real_valued_column(k) for k in FEATURES]
@@ -20,7 +19,9 @@ def getTfModel():
     #
     # return regressor, input_fn
 
+
 def runDNN(Xtrain, Ytrain,Xtest):
+    FEATURES = ['width', 'px', 'height', 'py', 'depth']
 
     feature_columns = [
         # "curb-weight" and "highway-mpg" are numeric columns.
@@ -34,8 +35,7 @@ def runDNN(Xtrain, Ytrain,Xtest):
     regressor = tf.contrib.learn.DNNRegressor(feature_columns=feature_columns, hidden_units=[4, 3])
 
     def input_fn(x_data, y_data):
-        feature_cols = {k: tf.constant(x_data[:, i], shape=[len(x_data[:, i]), 1])
-                        for i, k in enumerate(FEATURES)}
+        feature_cols = {k: tf.constant(x_data[:, i], shape=[len(x_data[:, i]), 1]) for i, k in enumerate(FEATURES)}
         if y_data is None:
             return feature_cols
 

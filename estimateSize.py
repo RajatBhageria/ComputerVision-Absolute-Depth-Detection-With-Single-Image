@@ -1,12 +1,10 @@
 import numpy as np
-import cv2
-import csv
 from find_BB_and_depth import find_BB_and_depth
 # import load_mat_to_python
-# from linreg import LinearRegression as LinearRegression
 from linreg_closedform import LinearRegressionClosedForm as LinearRegression
 from PIL import Image
 # from NeuralNet import runNeuralNet
+from deepNeuralNet import runDNN
 import sys
 
 
@@ -37,7 +35,7 @@ def estimateSize():
 
     # Part 3: Create bounding boxes for our training images
     for i in range(n):
-        print("Testing on: " + str(imageLabels[i]))
+        #print("Testing on: " + str(imageLabels[i]))
         imgNum = int(imageLabels[i, 0])
         imgi = images[:, :, :, imgNum]
         h, w, c = imgi.shape
@@ -109,8 +107,8 @@ def estimateSize():
         # add the height width of the image to the imageLabels
         imageUnLabeled[i, 9:11] = (h, w)
 
-    Xtest_height = (imageUnLabeled[:, 10] / 2 -
-                    imageUnLabeled[:, 7]) * imageUnLabeled[:, 8]
+    Xtest_height = (imageUnLabeled[:, 9] / 2 -
+                    imageUnLabeled[:, 6]) * imageUnLabeled[:, 8]
     Xtest_width = (imageUnLabeled[:, 10] / 2 -
                    imageUnLabeled[:, 7]) * imageUnLabeled[:, 8]
 
@@ -118,41 +116,64 @@ def estimateSize():
     # Xtest_height = imageUnLabeled[:, [6, 8, 9]]
     # Xtest_width = imageUnLabeled[:, [7, 8, 10]]
 
-    # Part 6: Fit a Linear Regression with training data
-    # do training on linear regression
-    linreg_x = LinearRegression(regLambda=1E-8)
-    linreg_y = LinearRegression(regLambda=1E-8)
+    # # Part 6: Fit a Linear Regression with training data
+    # # do training on linear regression
+    # linreg_x = LinearRegression(regLambda=1E-8)
+    # linreg_y = LinearRegression(regLambda=1E-8)
+    #
+    # linreg_x.fit(train_height, label_height)
+    # linreg_y.fit(train_width, label_width)
+    #
+    # # Part 7: predict heights and widths using linreg
+    # yHatHeight = linreg_x.predict(Xtest_height)
+    # yHatWidth = linreg_y.predict(Xtest_width)
+    #
+    # print("yHatHeight:" + str(yHatHeight))
+    # print("yHatWidth:" + str(yHatWidth))
+    #
+    # y_hat_linreg = np.hstack((yHatHeight, yHatWidth))
 
-    linreg_x.fit(train_height, label_height)
-    linreg_y.fit(train_width, label_width)
-
-    # Part 7: predict heights and widths using linreg
-    yHatHeight = linreg_x.predict(Xtest_height)
-    yHatWidth = linreg_y.predict(Xtest_width)
-
-    print("yHatHeight:" + str(yHatHeight))
-    print("yHatWidth:" + str(yHatWidth))
-
-    y_hat_linreg = np.hstack((yHatHeight, yHatWidth))
-
-    sys.exit()
+    #sys.exit()
 
     # Part 8: Fit a Neural nets with training data
 
     # re-massage the features
     # width of the bbox, Px, height of bbox, Py, depth
-    heightWidth = np.hstack((train_height[:, [0, 2]], train_width[:, [0, 2]]))
-    Xtrain = np.c_[heightWidth, train_width[:, 1]]
+    px = imageLabels[:, 9] / 2
+    depth = imageLabels[:, 8]
+    height = imageLabels[:, 6]
+
+    py = imageLabels[:, 10] / 2
+    width = imageLabels[:, 7]
+
+    #heightWidth = np.hstack((train_height[:, [0, 2]], train_width[:, [0, 2]]))
+    #Xtrain = np.c_[heightWidth, train_width[:, 1]]
+    Xtrain = np.c_[height, px, width, py, depth]
 
     # re-massage the ytrain
     #heights and widths in meters
     Ytrain = np.vstack((label_height, label_width)).T
 
+    print Xtrain.shape
+    print Ytrain.shape
+
+    px = imageLabels[:, 9] / 2
+    depth = imageLabels[:, 8]
+    height = imageLabels[:, 6]
+
+    py = imageLabels[:, 10] / 2
+    width = imageLabels[:, 7]
+
     # get the Xtest data
     heightWidth = np.hstack((Xtest_height[:, [0, 2]], Xtest_width[:, [0, 2]]))
     Xtest = np.c_[heightWidth, train_width[:, 1]]
 
-    y_hat_NN = runNeuralNet(Xtrain, Ytrain, Xtest)
+    print Xtrain.shape
+    print Ytrain.shape
+    print Xtest.shape
+
+    y_hat_NN = runDNN(Xtrain, Ytrain, Xtest)
+    print y_hat_NN
 
 
 if __name__ == '__main__':
