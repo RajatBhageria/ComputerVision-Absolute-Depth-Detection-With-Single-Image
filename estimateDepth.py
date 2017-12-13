@@ -109,8 +109,8 @@ def cnn_model_fn(features, labels, mode):
       mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
 
 def main(unused_argv):
-  data = np.load('nyu_dataset_images.npy')
-  labels_data = np.load('nyu_dataset_depths.npy')
+  data = np.load('data/nyu_dataset_images.npy')
+  labels_data = np.load('data/nyu_dataset_depths.npy')
   train_data = np.array([data[:, :, :, i] for i in range(20)], dtype='float32')
   eval_data = np.array([data[:, :, :, i] for i in range(20, 30)], dtype='float32')
   # train_labels = np.array([labels_data[:,:,i] for i in range(20)])
