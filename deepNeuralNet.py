@@ -4,16 +4,18 @@ import numpy as np
 def runDNN(Xtrain, Ytrain,Xtest):
 
     #define the model features
-    FEATURES = ['height/width', 'px/py', 'depth']
+    #FEATURES = ['height/width','depth']
+    FEATURES = ['outputs']
     feature_cols = [tf.feature_column.numeric_column(k) for k in FEATURES]
 
     #define the DNN regressor
-    regressor = tf.contrib.learn.DNNRegressor(feature_columns=feature_cols, hidden_units=[3,2,1])
+    regressor = tf.contrib.learn.DNNRegressor(feature_columns=feature_cols, hidden_units=[1,1])
 
     #define the input functions for training
-    def get_input_fn(xData, yData=None, num_epochs=None, shuffle=False):
+    def get_input_fn(xData, yData=None, num_epochs=None, shuffle=True):
         return tf.estimator.inputs.numpy_input_fn(
-            x={FEATURES[i]: xData[:,i] for i in range(0,3)},
+            #x={FEATURES[i]: xData[:,i] for i in range(0,2)},
+            x={FEATURES[0]: xData},
             y=yData,
             num_epochs=num_epochs,
             shuffle=shuffle)
