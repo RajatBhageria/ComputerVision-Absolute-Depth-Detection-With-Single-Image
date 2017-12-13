@@ -1,4 +1,4 @@
-"""Convolutional Neural Network Estimator for MNIST, built with tf.layers."""
+"""This is a tensorflow tutorial that I have adapted for the CNN part of our project!"""
 
 from __future__ import absolute_import
 from __future__ import division
