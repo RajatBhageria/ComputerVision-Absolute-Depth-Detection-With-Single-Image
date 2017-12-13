@@ -21,8 +21,8 @@ import numpy as np
 
 # Training Parameters
 learning_rate = 0.001
-num_steps = 2
-batch_size = 10
+num_steps = 1
+batch_size = 1 #should be 10 or something like 100
 
 # Network Parameters
 num_input = 307200*3 # MNIST data input (img shape: 480*640*3)
@@ -36,6 +36,7 @@ def conv_net(x_dict, n_classes, dropout, reuse, is_training):
     with tf.variable_scope('ConvNet', reuse=reuse):
         # TF Estimator input is a dict, in case of multiple inputs
         x = x_dict['images']
+        print("we got here")
 
         # MNIST data input is a 1-D vector of 784 features (28*28 pixels)
         # Reshape to match picture format [Height x Width x Channel]
@@ -62,7 +63,7 @@ def conv_net(x_dict, n_classes, dropout, reuse, is_training):
 
         # Output layer, class prediction
         out = tf.layers.dense(fc1, n_classes)
-
+    print(out)
     return out
 
 
